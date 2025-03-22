@@ -1935,45 +1935,54 @@ static CGFloat currentScale = 1.0;
         }
     }
 
+
+        // 处理右侧栏的缩放及位置调整
+		if ([self.accessibilityLabel isEqualToString:@"right"]) {
+    // 1. 读取缩放比例（字符串 -> 浮点数）
     NSString *scaleValue = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYElementScale"];
-    if ([self.accessibilityLabel isEqualToString:@"right"]) {
-        if (scaleValue.length > 0) {
-            CGFloat scale = [scaleValue floatValue];
-            if(currentScale !=  scale){
-                currentScale = scale;
-                right_tx = 0;
-                left_tx = 0;
-            }
-            if (scale > 0 && scale != 1.0) {
-                CGFloat ty = 0;
-                for(UIView *view in self.subviews){
-                    ty += (view.frame.size.height - view.frame.size.height * scale)/2;
-                }
-                if(right_tx == 0){
-                    right_tx = (self.frame.size.width - self.frame.size.width * scale)/2;
-                }
-                self.transform = CGAffineTransformMake(scale, 0, 0, scale, right_tx, ty);
-            }
+    CGFloat scale = scaleValue.length > 0 ? [scaleValue floatValue] : 1.0;
+    
+    // 2. 读取位置偏移（字符串 -> 浮点数）
+    NSString *offsetXStr = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYRightOffsetX"];
+    CGFloat offsetX = offsetXStr.length > 0 ? [offsetXStr floatValue] : 0.0;
+    
+    NSString *offsetYStr = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYRightOffsetY"];
+    CGFloat offsetY = offsetYStr.length > 0 ? [offsetYStr floatValue] : 0.0;
+    
+    // 3. 应用变换（缩放 + 偏移）
+    if (scale != 1.0) {
+        // 计算缩放后的平移补偿
+        CGFloat tx = (self.frame.size.width - self.frame.size.width * scale) / 2;
+        CGFloat ty = 0.0;
+        for (UIView *view in self.subviews) {
+            ty += (view.frame.size.height - view.frame.size.height * scale) / 2;
         }
-    }
+        // 合并缩放与用户设置的偏移
+        self.transform = CGAffineTransformMake(scale, 0, 0, scale, tx + offsetX, ty + offsetY);
+       } else {
+        // 无缩放时直接应用偏移
+        self.transform = CGAffineTransformMakeTranslation(offsetX, offsetY);
+	}
+}
+
+    // 左侧栏的原有逻辑保持不变
     if ([self.accessibilityLabel isEqualToString:@"left"]) {
         NSString *scaleValue = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYElementScale"];
         if (scaleValue.length > 0) {
             CGFloat scale = [scaleValue floatValue];
             if (scale > 0 && scale != 1.0) {
                 CGFloat ty = 0;
-                for(UIView *view in self.subviews){
-                    ty += (view.frame.size.height - view.frame.size.height * scale)/2;
+                for (UIView *view in self.subviews) {
+                    ty += (view.frame.size.height - view.frame.size.height * scale) / 2;
                 }
-                if(left_tx == 0){
-                    left_tx = (self.frame.size.width - self.frame.size.width * scale)/2 - self.frame.size.width * (1 -scale);
+                if (left_tx == 0) {
+                    left_tx = (self.frame.size.width - self.frame.size.width * scale) / 2 - self.frame.size.width * (1 - scale);
                 }
                 self.transform = CGAffineTransformMake(scale, 0, 0, scale, left_tx, ty);
             }
         }
     }
 }
-
 %end
 
 %hook AWEFeedVideoButton
