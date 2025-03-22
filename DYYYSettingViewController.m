@@ -129,6 +129,10 @@ typedef NS_ENUM(NSInteger, DYYYSettingItemType) {
             [DYYYSettingItem itemWithTitle:@"评论区毛玻璃" key:@"DYYYisEnableCommentBlur" type:DYYYSettingItemTypeSwitch],
             [DYYYSettingItem itemWithTitle:@"设置毛玻璃透明度" key:@"DYYYCommentBlurtransparent" type:DYYYSettingItemTypeTextField placeholder:@"0-1小数"],
             [DYYYSettingItem itemWithTitle:@"时间属地显示" key:@"DYYYisEnableArea" type:DYYYSettingItemTypeSwitch],
+			// 时间水平偏移
+			[DYYYSettingItem itemWithTitle:@"时间水平偏移" key:@"DYYYTimeOffsetX" type:DYYYSettingItemTypeTextField placeholder:@"不填默认为0"],
+			// 时间垂直偏移
+			[DYYYSettingItem itemWithTitle:@"时间垂直偏移" key:@"DYYYTimeOffsetY" type:DYYYSettingItemTypeTextField placeholder:@"不填默认为0"],
             [DYYYSettingItem itemWithTitle:@"时间标签颜色" key:@"DYYYLabelColor" type:DYYYSettingItemTypeTextField placeholder:@"十六进制"],
             [DYYYSettingItem itemWithTitle:@"隐藏系统顶栏" key:@"DYYYisHideStatusbar" type:DYYYSettingItemTypeSwitch],
             [DYYYSettingItem itemWithTitle:@"关注二次确认" key:@"DYYYfollowTips" type:DYYYSettingItemTypeSwitch],

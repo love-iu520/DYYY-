@@ -1337,6 +1337,27 @@
 
 %end
 
+//调整时间属地的位置
+%hook AWEPlayInteractionTimestampElement
+- (void)layoutSubviews {
+    %orig;
+    
+    // 1. 读取用户设置
+    NSString *offsetXStr = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYTimeOffsetX"];
+    CGFloat offsetX = offsetXStr.length > 0 ? [offsetXStr floatValue] : 0.0;
+    
+    NSString *offsetYStr = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYTimeOffsetY"];
+    CGFloat offsetY = offsetYStr.length > 0 ? [offsetYStr floatValue] : 0.0;
+    
+    // 2. 获取时间标签并调整位置
+    UILabel *label = [self timestampLabel];
+    CGRect frame = label.frame;
+    frame.origin.x += offsetX;
+    frame.origin.y += offsetY;
+    label.frame = frame;
+}
+%end
+
 %hook AWEFeedRootViewController
 
 - (BOOL)prefersStatusBarHidden {
