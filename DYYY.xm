@@ -516,8 +516,8 @@
 
         UIBlurEffectStyle blurStyle = isDarkMode ? UIBlurEffectStyleDark : UIBlurEffectStyleLight;
 
-        // 🔥🔥动态获取用户设置的透明度🔥🔥
-        float userTransparency = [[[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYcommentBlurtransparent"] floatValue];
+        // 动态获取用户设置的透明度
+        float userTransparency = [[[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYCommentBlurtransparent"] floatValue];
         if (userTransparency <= 0 || userTransparency > 1) {
             userTransparency = 0.5; // 默认值0.5（半透明）
         }
@@ -527,7 +527,7 @@
             UIVisualEffectView *blurEffectView = [[UIVisualEffectView alloc] initWithEffect:blurEffect];
             blurEffectView.frame = self.view.bounds;
             blurEffectView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-            blurEffectView.alpha = userTransparency; // 🌟 设置为用户自定义透明度
+            blurEffectView.alpha = userTransparency; // 设置为用户自定义透明度
             blurEffectView.tag = 999;
 
             UIView *overlayView = [[UIView alloc] initWithFrame:self.view.bounds];
@@ -541,7 +541,7 @@
             UIBlurEffect *blurEffect = [UIBlurEffect effectWithStyle:blurStyle];
             [existingBlurView setEffect:blurEffect];
 
-            existingBlurView.alpha = userTransparency; // 🌟 动态更新已有视图的透明度
+            existingBlurView.alpha = userTransparency; // 动态更新已有视图的透明度
 
             for (UIView *subview in existingBlurView.contentView.subviews) {
                 if (subview.tag != 999) {
@@ -574,6 +574,7 @@
 }
 %end
 //评论区微透
+
 %hook AFDFastSpeedView
 - (void)layoutSubviews {
     %orig;
@@ -1087,12 +1088,18 @@
     %orig;
     //定义一下进度条默认算法
     NSString *duration = [self.progressSliderDelegate formatTimeFromSeconds:floor(self.progressSliderDelegate.model.videoDuration/1000)];
+	   // 获取用户设置的位置参数
+    NSInteger timelineLocation = [[[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYTimelineLocation"] integerValue];
+
+    if (timelineLocation == 0) {
+        timelineLocation = -12; // 设置默认值，例如：1px
+    }
     //如果开启了显示时间进度
     if([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisShowScheduleDisplay"]){
         //左时间的视图不存在就创建 50 15 大小的视图文本
         if (!self.leftLabelUI) {
             self.leftLabelUI = [[UILabel alloc] init];
-            self.leftLabelUI.frame = CGRectMake(0, 1, 50, 15);
+            self.leftLabelUI.frame = CGRectMake(0, timelineLocation, 50, 15);
             self.leftLabelUI.backgroundColor = [UIColor clearColor];
             [(UILabel *)self.leftLabelUI setText:@"00:00"];
             [(UILabel *)self.leftLabelUI setTextColor:[UIColor whiteColor]];
@@ -1107,7 +1114,7 @@
         // 如果rightLabelUI为空,创建右侧视图
         if (!self.rightLabelUI) {
             self.rightLabelUI = [[UILabel alloc] init];
-            self.rightLabelUI.frame = CGRectMake(self.frame.size.width - 25, 1, 50, 15);
+            self.rightLabelUI.frame = CGRectMake(self.frame.size.width - 25, timelineLocation, 50, 15);
             self.rightLabelUI.backgroundColor = [UIColor clearColor];
             [(UILabel *)self.rightLabelUI setText:duration];
             [(UILabel *)self.rightLabelUI setTextColor:[UIColor whiteColor]];
