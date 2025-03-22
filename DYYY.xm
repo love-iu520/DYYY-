@@ -1283,13 +1283,12 @@
 
 %end
 
-%hook AWEPlayInteractionTimestampElement
+%hook AWEPlayInteractionTimestampElement  // 确保类名正确
 
-// 1. 修改方法返回类型为UILabel*，提高类型安全性
+// 1. timestampLabel 方法
 - (UILabel *)timestampLabel {
     UILabel *label = %orig;
     
-    // 提前读取配置，减少NSUserDefaults访问次数
     BOOL isEnableArea = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableArea"];
     NSString *labelColor = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYLabelColor"];
     
@@ -1302,8 +1301,9 @@
             NSString *provinceName = [CityManager.sharedInstance getProvinceNameWithCode:cityCode] ?: @"";
             
             if (cityName.length > 0 && ![text containsString:cityName]) {
-                // 提取省市判断逻辑到独立方法
-                BOOL isDirectCity = [self isDirectCityWithProvince:provinceName city:cityName code:cityCode];
+                BOOL isDirectCity = [self isDirectCityWithProvince:provinceName  // 参数名修正
+                                                             city:cityName 
+                                                             code:cityCode];
                 
                 if (!self.model.ipAttribution) {
                     if (isDirectCity) {
@@ -1315,17 +1315,15 @@
                     BOOL containsProvince = [text containsString:provinceName];
                     
                     if (isDirectCity && containsProvince) {
-                        label.text = text; // 避免重复显示
+                        label.text = text;
                     } else if (containsProvince) {
                         label.text = [NSString stringWithFormat:@"%@ %@", text, cityName];
                     }
-                    // else 保持原文本
                 }
             }
         }
     }
     
-    // 颜色设置
     if (labelColor.length > 0) {
         dispatch_async(dispatch_get_main_queue(), ^{
             label.textColor = [DYYYManager colorWithHexString:labelColor];
@@ -1335,7 +1333,7 @@
     return label;
 }
 
-// 2. 提取省市类型判断逻辑
+// 2. 自定义方法（确保参数名与调用一致）
 - (BOOL)isDirectCityWithProvince:(NSString *)province 
                            city:(NSString *)city 
                            code:(NSString *)code {
@@ -1344,29 +1342,27 @@
            [code hasPrefix:@"31"] || [code hasPrefix:@"50"]);
 }
 
-// 3. 布局调整：基于原始Frame计算，避免累积偏移
+// 3. 布局调整
 - (void)layoutSubviews {
     %orig;
     
-    // 确保在主线程执行UI操作
     dispatch_async(dispatch_get_main_queue(), ^{
-        // 读取用户设置
         CGFloat offsetX = [[NSUserDefaults standardUserDefaults] floatForKey:@"DYYYTimeOffsetX"];
         CGFloat offsetY = [[NSUserDefaults standardUserDefaults] floatForKey:@"DYYYTimeOffsetY"];
         
-        // 获取原始Frame（假设原始布局已确定）
         UILabel *label = [self timestampLabel];
         CGRect originalFrame = label.frame;
         
-        // 应用偏移量（每次基于原始Frame计算）
-        label.frame = CGRectMake(originalFrame.origin.x + offsetX, 
-                                 originalFrame.origin.y + offsetY, 
-                                 originalFrame.size.width, 
-                                 originalFrame.size.height);
+        label.frame = CGRectMake(
+            originalFrame.origin.x + offsetX, 
+            originalFrame.origin.y + offsetY, 
+            originalFrame.size.width, 
+            originalFrame.size.height
+        );
     });
 }
 
-// 4. 类方法Hook
+// 4. 类方法 Hook
 + (BOOL)shouldActiveWithData:(id)arg1 context:(id)arg2 {
     return [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableArea"];
 }
