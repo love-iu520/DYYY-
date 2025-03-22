@@ -374,27 +374,6 @@
     %orig;
 }
 %end
-//跳过点赞数低的视频
-%hook AWEFeedTableViewController
-
-// 拦截视频列表加载方法（假设方法名为 loadVideoList:）
-- (void)loadVideoList:(NSArray *)aweme_list {
-    NSMutableArray *filteredList = [NSMutableArray array];
-    
-    for (id video in aweme_list) {
-        // 通过 KVC 获取 digg_count 值
-        NSInteger diggCount = [[video valueForKeyPath:@"statistics.digg_count"] integerValue];
-        
-        if (diggCount >= 500) {
-            [filteredList addObject:video];
-        }
-    }
-    
-    // 调用原始方法加载过滤后的列表
-    %orig(filteredList);
-}
-
-%end
 
 
 %hook AWEStoryContainerCollectionView
